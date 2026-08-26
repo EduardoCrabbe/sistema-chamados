@@ -9,10 +9,10 @@ public interface IChamado
     int Id { get; init; }
     string Titulo { get; }
     string Descricao { get; }
-    string Status { get; }
+    StatusChamado Status { get; }
     DateTime DataCriacao { get; }
 
-    void UpdateStatus(string novoStatus);
+    void UpdateStatus(StatusChamado statusChamado);
 }
 
 // Classe que representa um chamado (ticket) no sistema
@@ -25,7 +25,7 @@ public class Chamado : IChamado
     // Descrição detalhada do problema ou solicitação
     public string Descricao { get; private set; }
     // Status atual do chamado (ex: "Aberto", "Fechado"). Só pode ser alterado internamente
-    public string Status { get; private set; }
+    public StatusChamado Status { get; private set; }
     // Data e hora em que o chamado foi criado
     public DateTime DataCriacao { get; private set; }
 
@@ -41,16 +41,14 @@ public class Chamado : IChamado
         Titulo = titulo;
         Descricao = descricao;
         // Define o status inicial como "Aberto"
-        Status = "Aberto";
+        Status = StatusChamado.Aberto;
         // Registra a data/hora atual como data de criação
         DataCriacao = DateTime.Now;
     }
 
-   public void UpdateStatus(string novoStatus)
+   public void UpdateStatus(StatusChamado novoStatus)
     {
-        if (string.IsNullOrWhiteSpace(novoStatus))
-            throw new ArgumentException("O status não pode ser vazio.");
-        
+        // Validação: se o novo status for nulo, lança uma exceção
         Status = novoStatus;
     }
 } // Fim do arquivo (apenas uma chave fechará a classe)

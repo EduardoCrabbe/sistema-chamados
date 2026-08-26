@@ -22,6 +22,6 @@ Console.WriteLine($"Status Inicial: {chamado.Status}");
 
 // Atualiza o status do chamado para "Em atendimento" usando o método UpdateStatus
 // Internamente, o método valida se o novo status não é vazio antes de aplicar a mudança
-chamado.UpdateStatus("Em atendimento");
+chamado.UpdateStatus(StatusChamado.EmAtendimento);
 // Exibe o novo status após a atualização
 Console.WriteLine($"Novo Status: {chamado.Status}");
