@@ -21,17 +21,19 @@ public class Chamado : IChamado
     // Identificador único do chamado. "init" permite definir o valor apenas na criação do objeto
     public int Id { get; init; }
     // Título do chamado. "private set" impede alteração direta por código externo à classe
-    public string Titulo { get; private set; }
-    // Descrição detalhada do problema ou solicitação
-    public string Descricao { get; private set; }
-    // Status atual do chamado (ex: "Aberto", "Fechado"). Só pode ser alterado internamente
+// O " = null!" avisa ao compilador que o EF Core cuidará do preenchimento desse field
+public string Titulo { get; private set; } = null!;
+public string Descricao { get; private set; } = null!;
     public StatusChamado Status { get; private set; }
     // Data e hora em que o chamado foi criado
     public DateTime DataCriacao { get; private set; }
 
+     protected Chamado() { }
+
     // Construtor: método chamado ao criar um novo Chamado. Recebe id, título e descrição
     public Chamado(int id, string titulo, string descricao)
     {
+    
         // Validação: se o título for nulo, vazio ou só espaços, lança uma exceção
         if (string.IsNullOrWhiteSpace(titulo))
             throw new ArgumentException("O título não pode ser vazio.");
