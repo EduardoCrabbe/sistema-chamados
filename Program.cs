@@ -1,27 +1,47 @@
-// Importa o namespace System, que fornece funcionalidades básicas como Console.WriteLine
 using System;
-// Importa o namespace onde está a classe Chamado, permitindo usá-la neste arquivo
+using System.Linq;
+using SistemaChamados.Data;
 using SistemaChamados.Models;
 
-// Exibe o cabeçalho do sistema no terminal
-Console.WriteLine("=== SISTEMA DE CHAMADOS ===");
+Console.WriteLine("=== SIMULADOR DE ATUALIZAÇÃO (EF CORE) ===");
 
-// Cria um novo objeto Chamado com:
-//   - Id: 1
-//   - Título: "Erro no login"
-//   - Descrição: "Usuário não consegue acessar a página principal."
-// O status será automaticamente "Aberto" e a data de criação será a atual (definidos no construtor)
-var chamado = new Chamado(1, "Erro no login", "Usuário não consegue acessar a página principal.");
+using var db = new AplicacaoDbContext();
 
-// Exibe o ID do chamado criado
-Console.WriteLine($"Chamado ID: {chamado.Id}");
-// Exibe o título do chamado
-Console.WriteLine($"Título: {chamado.Titulo}");
-// Exibe o status inicial (será "Aberto", pois é o valor padrão definido no construtor)
-Console.WriteLine($"Status Inicial: {chamado.Status}");
+// 1. Limpeza rápida e criação de um chamado de teste em aberto
+db.Chamados.RemoveRange(db.Chamados);
+db.SaveChanges();
 
-// Atualiza o status do chamado para "Em atendimento" usando o método UpdateStatus
-// Internamente, o método valida se o novo status não é vazio antes de aplicar a mudança
-chamado.UpdateStatus(StatusChamado.EmAtendimento);
-// Exibe o novo status após a atualização
-Console.WriteLine($"Novo Status: {chamado.Status}");
+var chamadoOriginal = new Chamado(0, "Bug no Login", "Não entra com senha padrão.");
+db.Chamados.Add(chamadoOriginal);
+db.SaveChanges();
+
+Console.WriteLine($"[Antes] Chamado criado com Status: {chamadoOriginal.Status}");
+
+// =======================================================
+// 2. O FLUXO DE ATUALIZAÇÃO
+// =======================================================
+
+// Passo A: Buscamos o chamado direto do banco pelo título
+var chamadoDoBanco = db.Chamados.FirstOrDefault(c => c.Titulo == "Bug no Login");
+
+if (chamadoDoBanco != null)
+{
+    Console.WriteLine("\nIniciando atendimento (alterando status no C#)...");
+
+    // Passo B: Alteramos o status usando a nossa regra de negócio protegida
+    chamadoDoBanco.UpdateStatus(StatusChamado.EmAtendimento);
+
+    // Passo C: O EF Core detecta a mudança e sincroniza com o SQL Server
+    db.SaveChanges();
+
+    Console.WriteLine("Alteração salva com sucesso no banco de dados!");
+}
+
+// =======================================================
+// 3. PROVA REAL: Buscamos novamente do banco para conferir
+// =======================================================
+var chamadoAtualizado = db.Chamados.FirstOrDefault(c => c.Titulo == "Bug no Login");
+Console.WriteLine($"\n[Depois] Status atualizado no banco: {chamadoAtualizado?.Status}");
+
+// Mantém a janela aberta
+Console.ReadLine();
